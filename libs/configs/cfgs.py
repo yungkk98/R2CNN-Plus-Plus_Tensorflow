@@ -8,7 +8,7 @@ Attention + BUS + pyramid
 """
 
 # ------------------------------------------------
-VERSION = 'R2CNN_20180922_DOTA_v28'
+VERSION = 'R2CNN_custom'
 NET_NAME = 'resnet_v1_101'
 ADD_BOX_IN_TENSORBOARD = True
 # ---------------------------------------- System_config
@@ -64,11 +64,11 @@ DECAY_STEP = [150000, 250000]  # [100000, 200000] Not pyramid images training
 MAX_ITERATION = 600000   # 300000 Not pyramid images training
 
 # -------------------------------------------- Data_preprocess_config
-DATASET_NAME = 'DOTA_TOTAL'  # 'ship', 'spacenet', 'pascal', 'coco'
+DATASET_NAME = 'ship'  # 'ship', 'spacenet', 'pascal', 'coco'
 PIXEL_MEAN = [123.68, 116.779, 103.939]  # R, G, B. In tf, channel is RGB. In openCV, channel is BGR
 IMG_SHORT_SIDE_LEN = [800, 600, 700, 900, 1000, 1100, 1200]
 IMG_MAX_LENGTH = 1000
-CLASS_NUM = 15
+CLASS_NUM = 4
 
 # --------------------------------------------- Network_config
 BATCH_SIZE = 1
