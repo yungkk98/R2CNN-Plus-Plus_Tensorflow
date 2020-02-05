@@ -1,7 +1,7 @@
 # -*-coding: utf-8 -*-
 
 from __future__ import absolute_import, division, print_function
-
+from libs.configs import cfgs
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
 
