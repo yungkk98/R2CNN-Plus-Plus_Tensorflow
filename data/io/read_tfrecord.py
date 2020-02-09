@@ -78,15 +78,15 @@ def next_batch(dataset_name, batch_size, shortside_len, is_training):
         raise ValueError('dataSet name must be in pascal, coco spacenet and ship')
 
     if is_training:
-        pattern = os.path.join('/content/drive/', dataset_name + '_train*')
+        pattern = os.path.join('/content/drive/', dataset_name + '_train.tfrecord')
     else:
-        pattern = os.path.join('/content/drive/', dataset_name + '_test*')
+        pattern = os.path.join('/content/drive/', dataset_name + '_test.tfrecord')
 
     print('tfrecord path is -->', os.path.abspath(pattern))
 
-    filename_tensorlist = tf.train.match_filenames_once(pattern)
+    # filename_tensorlist = tf.train.match_filenames_once(pattern)
 
-    filename_queue = tf.train.string_input_producer(filename_tensorlist)
+    filename_queue = tf.train.string_input_producer([pattern])
 
     shortside_len = tf.constant(shortside_len)
     shortside_len = tf.random_shuffle(shortside_len)[0]
