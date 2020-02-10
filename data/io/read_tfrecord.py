@@ -78,7 +78,7 @@ def next_batch(dataset_name, batch_size, shortside_len, is_training):
         raise ValueError('dataSet name must be in pascal, coco spacenet and ship')
 
     if is_training:
-        pattern = os.path.join('/content/drive/', dataset_name + '_train.tfrecord')
+        pattern = os.path.join('/content/drive/My Drive/', dataset_name + '_train.tfrecord')
     else:
         pattern = os.path.join('/content/drive/', dataset_name + '_test.tfrecord')
 
