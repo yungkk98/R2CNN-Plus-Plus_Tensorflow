@@ -111,6 +111,7 @@ def convert_pascal_to_tfrecord():
         example = tf.train.Example(features=feature)
 
         writer.write(example.SerializeToString())
+        writer.close()
 
         view_bar('Conversion progress', count + 1, len(glob.glob(xml_path + '/*.xml')))
 
