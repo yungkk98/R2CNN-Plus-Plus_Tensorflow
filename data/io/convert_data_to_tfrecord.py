@@ -18,6 +18,7 @@ tf.app.flags.DEFINE_string('save_dir', '../tfrecord/', 'save name')
 tf.app.flags.DEFINE_string('img_format', '.jpg', 'format of image')
 tf.app.flags.DEFINE_string('dataset', 'jyzdata', 'dataset')
 FLAGS = tf.app.flags.FLAGS
+NAME_LABEL_MAP = {'container': 0, 'oil': 1, 'carrier': 2, 'etc': 3}
 
 
 def _int64_feature(value):
@@ -98,8 +99,8 @@ def convert_pascal_to_tfrecord():
 
         feature = tf.train.Features(feature={
             # do not need encode() in linux
-            # 'img_name': _bytes_feature(img_name.encode()),
-            'img_name': _bytes_feature(img_name),
+            'img_name': _bytes_feature(img_name.encode()),
+            # 'img_name': _bytes_feature(img_name),
             'img_height': _int64_feature(img_height),
             'img_width': _int64_feature(img_width),
             'img': _bytes_feature(img.tostring()),
