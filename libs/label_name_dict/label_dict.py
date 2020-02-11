@@ -4,10 +4,7 @@ from __future__ import division, print_function, absolute_import
 from libs.configs import cfgs
 
 if cfgs.DATASET_NAME == 'ship':
-    NAME_LABEL_MAP = {
-        'back_ground': 0,
-        'ship': 1
-    }
+    NAME_LABEL_MAP = {'container': 0, 'oil': 1, 'carrier': 2, 'etc': 3}
 elif cfgs.DATASET_NAME == 'aeroplane':
     NAME_LABEL_MAP = {
         'back_ground': 0,
