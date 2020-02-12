@@ -11,16 +11,30 @@ from data.io import image_preprocess
 from libs.configs import cfgs
 
 
-def read_single_example_and_decode(filename_queue):
+features={
+    'img_name': tf.FixedLenFeature([], tf.string),
+    'img_height': tf.FixedLenFeature([], tf.int64),
+    'img_width': tf.FixedLenFeature([], tf.int64),
+    'img': tf.FixedLenFeature([], tf.string),
+    'gtboxes_and_label': tf.FixedLenFeature([], tf.string),
+    'num_objects': tf.FixedLenFeature([], tf.int64)
+}
+
+
+def _parse_image_function(example_proto):
+    return tf.parse_single_example(example_proto, features)
+
+
+def read_single_example_and_decode(raw_dataset):
 
     # tfrecord_options = tf.python_io.TFRecordOptions(tf.python_io.TFRecordCompressionType.ZLIB)
 
     # reader = tf.TFRecordReader(options=tfrecord_options)
-    reader = tf.TFRecordReader()
-    _, serialized_example = reader.read(filename_queue)
+    # reader = tf.TFRecordReader()
+    # _, serialized_example = reader.read(filename_queue)
 
     features = tf.parse_single_example(
-        serialized=serialized_example,
+        serialized=raw_dataset,
         features={
             'img_name': tf.FixedLenFeature([], tf.string),
             'img_height': tf.FixedLenFeature([], tf.int64),
@@ -46,9 +60,9 @@ def read_single_example_and_decode(filename_queue):
     return img_name, img, gtboxes_and_label, num_objects
 
 
-def read_and_prepocess_single_img(filename_queue, shortside_len, is_training):
+def read_and_prepocess_single_img(raw_dataset, shortside_len, is_training):
 
-    img_name, img, gtboxes_and_label, num_objects = read_single_example_and_decode(filename_queue)
+    img_name, img, gtboxes_and_label, num_objects = read_single_example_and_decode(raw_dataset)
 
     img = tf.cast(img, tf.float32)
     img = img - tf.constant(cfgs.PIXEL_MEAN)
@@ -78,7 +92,7 @@ def next_batch(dataset_name, batch_size, shortside_len, is_training):
         raise ValueError('dataSet name must be in pascal, coco spacenet and ship')
 
     if is_training:
-        pattern = os.path.join('/content/drive/My Drive/', dataset_name + '_train.tfrecord')
+        pattern = os.path.join('/content/drive/My Drive/', dataset_name + '_val.tfrecord')
     else:
         pattern = os.path.join('/content/drive/', dataset_name + '_test.tfrecord')
 
@@ -86,16 +100,35 @@ def next_batch(dataset_name, batch_size, shortside_len, is_training):
 
     # filename_tensorlist = tf.train.match_filenames_once(pattern)
 
-    filename_queue = tf.train.string_input_producer([pattern])
+    # filename_queue = tf.train.string_input_producer([pattern])
+    raw_dataset = tf.data.TFRecordDataset(pattern)
+    raw_dataset = raw_dataset.map(_parse_image_function)
+    raw_dataset = tf.data.make_one_shot_iterator(raw_dataset)
+    # parsed_image_dataset = raw_image_dataset.map(_parse_image_function)
+    # raw_dataset = tf.python_io.tf_record_iterator(path=pattern)
 
     shortside_len = tf.constant(shortside_len)
     shortside_len = tf.random_shuffle(shortside_len)[0]
 
-    img_name, img, gtboxes_and_label, num_obs = read_and_prepocess_single_img(filename_queue, shortside_len,
-                                                                              is_training=is_training)
+    single_ex = raw_dataset.get_next()
+
+    img_name = single_ex['img_name']
+    img_height = tf.cast(single_ex['img_height'], tf.int32)
+    img_width = tf.cast(single_ex['img_width'], tf.int32)
+    img = tf.decode_raw(single_ex['img'], tf.uint8)
+
+    img = tf.reshape(img, shape=[img_height, img_width, 3])
+
+    gtboxes_and_label = tf.decode_raw(single_ex['gtboxes_and_label'], tf.int32)
+    gtboxes_and_label = tf.reshape(gtboxes_and_label, [-1, 9])
+
+    num_obs = tf.cast(single_ex['num_objects'], tf.int32)
+
+    # img_name, img, gtboxes_and_label, num_obs = read_and_prepocess_single_img(raw_dataset, shortside_len,
+    #                                                                           is_training=is_training)
     img_name_batch, img_batch, gtboxes_and_label_batch , num_obs_batch = \
         tf.train.batch(
-                       [img_name, img, gtboxes_and_label, num_obs],
+                       [img_name, tf.to_float(img), gtboxes_and_label, num_obs],
                        batch_size=batch_size,
                        capacity=1,
                        num_threads=1,
