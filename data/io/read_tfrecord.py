@@ -124,6 +124,19 @@ def next_batch(dataset_name, batch_size, shortside_len, is_training):
 
     num_obs = tf.cast(single_ex['num_objects'], tf.int32)
 
+    img = tf.cast(img, tf.float32)
+    img = img - tf.constant(cfgs.PIXEL_MEAN)
+    if is_training:
+        img, gtboxes_and_label = image_preprocess.short_side_resize(img_tensor=img, gtboxes_and_label=gtboxes_and_label,
+                                                                    target_shortside_len=shortside_len)
+        img, gtboxes_and_label = image_preprocess.random_flip_left_right(img_tensor=img,
+                                                                         gtboxes_and_label=gtboxes_and_label)
+
+    else:
+        img, gtboxes_and_label = image_preprocess.short_side_resize(img_tensor=img, gtboxes_and_label=gtboxes_and_label,
+                                                                    target_shortside_len=shortside_len)
+
+
     # img_name, img, gtboxes_and_label, num_obs = read_and_prepocess_single_img(raw_dataset, shortside_len,
     #                                                                           is_training=is_training)
     img_name_batch, img_batch, gtboxes_and_label_batch , num_obs_batch = \
