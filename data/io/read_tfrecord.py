@@ -104,7 +104,7 @@ def next_batch(dataset_name, batch_size, shortside_len, is_training):
     raw_dataset = tf.data.TFRecordDataset(pattern)
     raw_dataset = raw_dataset.map(_parse_image_function)
     raw_dataset = raw_dataset.repeat()
-    raw_dataset = raw_dataset.shuffle(1000)
+    raw_dataset = raw_dataset.shuffle(1000).batch(1)
     raw_dataset = tf.data.make_one_shot_iterator(raw_dataset)
     # parsed_image_dataset = raw_image_dataset.map(_parse_image_function)
     # raw_dataset = tf.python_io.tf_record_iterator(path=pattern)
